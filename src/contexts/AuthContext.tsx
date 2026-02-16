@@ -19,11 +19,16 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, name: string) => Promise<{ error: Error | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (phone: string, password: string, name: string) => Promise<{ error: Error | null }>;
+  signIn: (phone: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
+
+const phoneToEmail = (phone: string) => {
+  const cleaned = phone.replace(/\D/g, '');
+  return `${cleaned}@blasira.app`;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -76,16 +81,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, name: string) => {
+  const signUp = async (phone: string, password: string, name: string) => {
+    const email = phoneToEmail(phone);
+    const cleanedPhone = phone.replace(/\D/g, '');
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name } },
+      options: { data: { name, phone: cleanedPhone } },
     });
     return { error: error as Error | null };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (phone: string, password: string) => {
+    const email = phoneToEmail(phone);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error as Error | null };
   };
