@@ -1,6 +1,7 @@
 import { Bell, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import logo from '@/assets/logo.png';
 
 const Header = () => {
   const { user } = useAuth();
@@ -9,9 +10,7 @@ const Header = () => {
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
       <div className="container flex h-14 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-mali">
-            <span className="text-sm font-bold text-primary-foreground">B</span>
-          </div>
+          <img src={logo} alt="Blasira" className="h-9 w-9 object-contain" />
           <span className="text-lg font-bold text-gradient-mali">Blasira</span>
         </Link>
 
