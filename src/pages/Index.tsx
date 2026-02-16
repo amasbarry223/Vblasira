@@ -54,19 +54,19 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="container -mt-4 relative z-10">
+      <section className="container -mt-4 relative z-10 md:max-w-2xl lg:max-w-3xl md:mx-auto">
         <SearchForm />
       </section>
 
       <section className="container mt-8">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3 md:gap-4">
           {features.map((f, i) => (
-            <motion.div key={f.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.1 }} className="flex flex-col items-center rounded-xl bg-card p-3 text-center shadow-sm border border-border">
-              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                <f.icon className="h-5 w-5 text-primary" />
+            <motion.div key={f.title} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 + i * 0.1 }} className="flex flex-col items-center rounded-xl bg-card p-3 md:p-5 text-center shadow-sm border border-border">
+              <div className="mb-2 flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-primary/10">
+                <f.icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
               </div>
-              <div className="text-xs font-semibold">{f.title}</div>
-              <div className="text-[10px] text-muted-foreground">{f.desc}</div>
+              <div className="text-xs md:text-sm font-semibold">{f.title}</div>
+              <div className="text-[10px] md:text-xs text-muted-foreground">{f.desc}</div>
             </motion.div>
           ))}
         </div>
@@ -80,7 +80,7 @@ const Index = () => {
               Voir tout <ArrowRight className="h-3 w-3" />
             </a>
           </div>
-          <div className="space-y-3">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {popularTrips.map((trip, i) => (
               <TripCard key={trip.id} trip={trip} index={i} />
             ))}

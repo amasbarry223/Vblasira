@@ -22,7 +22,7 @@ const MyTrips = () => {
 
   return (
     <div className="pb-20">
-      <div className="container py-4">
+      <div className="container max-w-3xl mx-auto py-4">
         <h1 className="mb-4 text-lg font-bold">📋 Mes trajets</h1>
 
         <div className="mb-4 grid grid-cols-3 gap-2">

@@ -14,7 +14,7 @@ const Profile = () => {
 
   return (
     <div className="pb-20">
-      <div className="container py-4">
+      <div className="container max-w-lg mx-auto py-4">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-center">
           <div className="relative mx-auto mb-3 h-20 w-20">
             <img
