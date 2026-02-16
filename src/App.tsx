@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
+// Initialize query client
 const queryClient = new QueryClient();
 
 const App = () => (
