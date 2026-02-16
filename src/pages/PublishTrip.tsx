@@ -187,7 +187,7 @@ const PublishTrip = () => {
 
   return (
     <div className="pb-20">
-      <div className="container py-4">
+      <div className="container max-w-2xl mx-auto py-4">
         <button onClick={() => (step > 0 ? setStep(step - 1) : navigate(-1))} className="mb-3 flex items-center gap-1 text-sm text-muted-foreground">
           <ArrowLeft className="h-4 w-4" />
           {step > 0 ? 'Étape précédente' : 'Retour'}

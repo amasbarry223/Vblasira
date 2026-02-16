@@ -76,7 +76,7 @@ const TripDetail = () => {
         </button>
       </div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="container space-y-4">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="container max-w-2xl mx-auto space-y-4">
         <div className="flex items-center gap-2">
           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${isMoto ? 'bg-secondary/30 text-secondary-foreground' : 'bg-primary/10 text-primary'}`}>
             <VehicleIcon className="h-4 w-4" />

@@ -1,10 +1,18 @@
-import { Bell, LogIn } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Bell, LogIn, Search, PlusCircle, ClipboardList, User } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
 
+const desktopNav = [
+  { label: 'Chercher', path: '/search', icon: Search },
+  { label: 'Publier', path: '/publish', icon: PlusCircle },
+  { label: 'Mes trajets', path: '/my-trips', icon: ClipboardList },
+  { label: 'Profil', path: '/profile', icon: User },
+];
+
 const Header = () => {
   const { user } = useAuth();
+  const location = useLocation();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
@@ -13,6 +21,27 @@ const Header = () => {
           <img src={logo} alt="Blasira" className="h-9 w-9 object-contain" />
           <span className="text-lg font-bold text-gradient-mali">Blasira</span>
         </Link>
+
+        {/* Desktop nav */}
+        <nav className="hidden items-center gap-1 md:flex">
+          {desktopNav.map(({ label, path, icon: Icon }) => {
+            const isActive = location.pathname === path;
+            return (
+              <Link
+                key={path}
+                to={path}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
 
         <div className="flex items-center gap-2">
           {user ? (

@@ -77,15 +77,17 @@ const SearchResults = () => {
         </div>
       </div>
 
-      <div className="container space-y-3">
+      <div className="container">
         {isLoading ? (
           <div className="py-12 text-center text-sm text-muted-foreground">Chargement...</div>
         ) : sorted.length === 0 ? (
           <div className="py-12 text-center text-sm text-muted-foreground">Aucun trajet trouvé</div>
         ) : (
-          sorted.map((trip, i) => (
-            <TripCard key={trip.id} trip={trip} index={i} />
-          ))
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {sorted.map((trip, i) => (
+              <TripCard key={trip.id} trip={trip} index={i} />
+            ))}
+          </div>
         )}
       </div>
     </div>
