@@ -169,31 +169,33 @@ const TripDetail = () => {
 
       {/* Confirmation modal */}
       {showConfirm && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/50 md:items-center">
-          <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="w-full max-w-md rounded-t-2xl bg-card p-6 md:rounded-2xl">
-            <h3 className="mb-4 text-base font-bold">Confirmer votre réservation</h3>
-            <div className="mb-4 space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Trajet</span><span className="font-medium">{trip.departure_name} → {trip.destination_name}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Date</span><span>{trip.departure_date} à {trip.departure_time}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Conducteur</span><span>{trip.driver.name}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Places</span><span>{seats}</span></div>
-              <div className="flex justify-between font-semibold"><span>Total</span><span className="text-primary">{totalPrice} FCFA</span></div>
-            </div>
-            <div className="mb-4">
-              <div className="mb-2 text-xs font-medium">Mode de paiement</div>
-              <div className="space-y-2">
-                {([
-                  { value: 'cash' as const, label: '💵 Espèces au conducteur' },
-                  { value: 'orange_money' as const, label: '🟠 Orange Money' },
-                  { value: 'moov_money' as const, label: '🔵 Moov Money' },
-                ]).map(({ value, label }) => (
-                  <button key={value} onClick={() => setPaymentMethod(value)} className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${paymentMethod === value ? 'border-primary bg-primary/5 font-medium' : 'border-border hover:bg-muted'}`}>
-                    {label}
-                  </button>
-                ))}
+      <div className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/50 md:items-center">
+          <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="w-full max-w-md max-h-[85vh] flex flex-col rounded-t-2xl bg-card md:rounded-2xl">
+            <div className="overflow-y-auto flex-1 p-6 pb-0">
+              <h3 className="mb-4 text-base font-bold">Confirmer votre réservation</h3>
+              <div className="mb-4 space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Trajet</span><span className="font-medium">{trip.departure_name} → {trip.destination_name}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Date</span><span>{trip.departure_date} à {trip.departure_time}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Conducteur</span><span>{trip.driver.name}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Places</span><span>{seats}</span></div>
+                <div className="flex justify-between font-semibold"><span>Total</span><span className="text-primary">{totalPrice} FCFA</span></div>
+              </div>
+              <div className="mb-4">
+                <div className="mb-2 text-xs font-medium">Mode de paiement</div>
+                <div className="space-y-2">
+                  {([
+                    { value: 'cash' as const, label: '💵 Espèces au conducteur' },
+                    { value: 'orange_money' as const, label: '🟠 Orange Money' },
+                    { value: 'moov_money' as const, label: '🔵 Moov Money' },
+                  ]).map(({ value, label }) => (
+                    <button key={value} onClick={() => setPaymentMethod(value)} className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm transition-colors ${paymentMethod === value ? 'border-primary bg-primary/5 font-medium' : 'border-border hover:bg-muted'}`}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 p-6 pt-3 border-t border-border">
               <button onClick={() => setShowConfirm(false)} className="flex-1 rounded-xl border border-border py-3 text-sm font-medium text-muted-foreground">Annuler</button>
               <motion.button whileTap={{ scale: 0.97 }} onClick={handleConfirm} disabled={booking} className="flex-1 rounded-xl bg-gradient-mali py-3 text-sm font-bold text-primary-foreground shadow-mali disabled:opacity-50">
                 {booking ? '...' : 'Confirmer'}
