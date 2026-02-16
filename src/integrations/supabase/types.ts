@@ -14,7 +14,170 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          created_at: string
+          id: string
+          passenger_id: string
+          payment_method: string
+          seats_booked: number
+          status: string
+          total_price: number
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          passenger_id: string
+          payment_method: string
+          seats_booked?: number
+          status?: string
+          total_price: number
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          passenger_id?: string
+          payment_method?: string
+          seats_booked?: number
+          status?: string
+          total_price?: number
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_passenger_id_fkey"
+            columns: ["passenger_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          rating: number
+          role: string
+          total_trips: number
+          university: string | null
+          updated_at: string
+          verification_status: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          name?: string
+          phone?: string | null
+          rating?: number
+          role?: string
+          total_trips?: number
+          university?: string | null
+          updated_at?: string
+          verification_status?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          rating?: number
+          role?: string
+          total_trips?: number
+          university?: string | null
+          updated_at?: string
+          verification_status?: string
+        }
+        Relationships: []
+      }
+      trips: {
+        Row: {
+          created_at: string
+          departure_date: string
+          departure_name: string
+          departure_time: string
+          destination_name: string
+          distance_km: number
+          driver_id: string
+          duration_min: number
+          helmet_provided: boolean | null
+          id: string
+          price_per_seat: number
+          recurrent: string | null
+          seats_available: number
+          seats_total: number
+          status: string
+          type: string
+          updated_at: string
+          vehicle_info: string | null
+        }
+        Insert: {
+          created_at?: string
+          departure_date: string
+          departure_name: string
+          departure_time: string
+          destination_name: string
+          distance_km?: number
+          driver_id: string
+          duration_min?: number
+          helmet_provided?: boolean | null
+          id?: string
+          price_per_seat: number
+          recurrent?: string | null
+          seats_available: number
+          seats_total: number
+          status?: string
+          type: string
+          updated_at?: string
+          vehicle_info?: string | null
+        }
+        Update: {
+          created_at?: string
+          departure_date?: string
+          departure_name?: string
+          departure_time?: string
+          destination_name?: string
+          distance_km?: number
+          driver_id?: string
+          duration_min?: number
+          helmet_provided?: boolean | null
+          id?: string
+          price_per_seat?: number
+          recurrent?: string | null
+          seats_available?: number
+          seats_total?: number
+          status?: string
+          type?: string
+          updated_at?: string
+          vehicle_info?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trips_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

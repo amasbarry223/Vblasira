@@ -1,10 +1,10 @@
 import { Car, Bike, Star, Clock, MapPin, Shield, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import type { Trip } from '@/lib/mock-data';
+import type { TripWithDriver } from '@/lib/api';
 import { motion } from 'framer-motion';
 
 interface TripCardProps {
-  trip: Trip;
+  trip: TripWithDriver;
   index?: number;
 }
 
@@ -22,15 +22,10 @@ const TripCard = ({ trip, index = 0 }: TripCardProps) => {
         to={`/trip/${trip.id}`}
         className="block rounded-xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
       >
-        {/* Vehicle badge */}
         <div className="mb-3 flex items-center justify-between">
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
-              isMoto
-                ? 'bg-secondary/30 text-secondary-foreground'
-                : 'bg-primary/10 text-primary'
-            }`}
-          >
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+            isMoto ? 'bg-secondary/30 text-secondary-foreground' : 'bg-primary/10 text-primary'
+          }`}>
             <VehicleIcon className="h-3.5 w-3.5" />
             {isMoto ? 'MOTO' : 'VOITURE'}
           </span>
@@ -39,7 +34,6 @@ const TripCard = ({ trip, index = 0 }: TripCardProps) => {
           </span>
         </div>
 
-        {/* Route */}
         <div className="mb-3 flex items-center gap-2">
           <div className="flex flex-1 items-center gap-2 text-sm font-medium">
             <MapPin className="h-4 w-4 shrink-0 text-primary" />
@@ -49,7 +43,6 @@ const TripCard = ({ trip, index = 0 }: TripCardProps) => {
           </div>
         </div>
 
-        {/* Time & duration */}
         <div className="mb-3 flex items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />
@@ -59,11 +52,10 @@ const TripCard = ({ trip, index = 0 }: TripCardProps) => {
           <span>{trip.distance_km} km</span>
         </div>
 
-        {/* Driver + Price */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img
-              src={trip.driver.avatar_url}
+              src={trip.driver.avatar_url || `https://ui-avatars.com/api/?name=${trip.driver.name}`}
               alt={trip.driver.name}
               className="h-8 w-8 rounded-full object-cover ring-2 ring-border"
             />
@@ -88,7 +80,6 @@ const TripCard = ({ trip, index = 0 }: TripCardProps) => {
           </div>
         </div>
 
-        {/* Helmet badge for moto */}
         {isMoto && trip.helmet_provided && (
           <div className="mt-2 flex items-center gap-1 text-[11px] text-success">
             <Shield className="h-3 w-3" />

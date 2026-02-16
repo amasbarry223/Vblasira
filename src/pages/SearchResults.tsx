@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Car, Bike, SlidersHorizontal } from 'lucide-react';
+import { Car, Bike } from 'lucide-react';
 import TripCard from '@/components/TripCard';
-import { mockTrips } from '@/lib/mock-data';
+import { useQuery } from '@tanstack/react-query';
+import { fetchTrips } from '@/lib/api';
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
@@ -13,46 +14,32 @@ const SearchResults = () => {
   const [vehicleFilter, setVehicleFilter] = useState<string>(type);
   const [sortBy, setSortBy] = useState<'price' | 'time' | 'rating'>('time');
 
-  const filtered = useMemo(() => {
-    let trips = [...mockTrips];
+  const { data: trips = [], isLoading } = useQuery({
+    queryKey: ['trips', from, to, vehicleFilter],
+    queryFn: () => fetchTrips({ from, to, type: vehicleFilter }),
+  });
 
-    if (from) {
-      trips = trips.filter((t) =>
-        t.departure_name.toLowerCase().includes(from.toLowerCase())
-      );
-    }
-    if (to) {
-      trips = trips.filter((t) =>
-        t.destination_name.toLowerCase().includes(to.toLowerCase())
-      );
-    }
-    if (vehicleFilter !== 'all') {
-      trips = trips.filter((t) => t.type === vehicleFilter);
-    }
-
-    // If no filters matched, show all trips
-    if (trips.length === 0) trips = [...mockTrips];
-
-    trips.sort((a, b) => {
+  const sorted = useMemo(() => {
+    const arr = [...trips];
+    arr.sort((a, b) => {
       if (sortBy === 'price') return a.price_per_seat - b.price_per_seat;
-      if (sortBy === 'rating') return b.driver.rating - a.driver.rating;
+      if (sortBy === 'rating') return (b.driver?.rating ?? 0) - (a.driver?.rating ?? 0);
       return a.departure_time.localeCompare(b.departure_time);
     });
-
-    return trips;
-  }, [from, to, vehicleFilter, sortBy]);
+    return arr;
+  }, [trips, sortBy]);
 
   return (
     <div className="pb-20">
-      {/* Header */}
       <div className="container py-4">
         <h1 className="text-lg font-bold">
           {from && to ? `${from} → ${to}` : 'Tous les trajets'}
         </h1>
-        <p className="text-xs text-muted-foreground">{filtered.length} trajet{filtered.length > 1 ? 's' : ''} disponible{filtered.length > 1 ? 's' : ''}</p>
+        <p className="text-xs text-muted-foreground">
+          {sorted.length} trajet{sorted.length > 1 ? 's' : ''} disponible{sorted.length > 1 ? 's' : ''}
+        </p>
       </div>
 
-      {/* Filters */}
       <div className="container mb-4 space-y-3">
         <div className="flex gap-2">
           {[
@@ -90,11 +77,16 @@ const SearchResults = () => {
         </div>
       </div>
 
-      {/* Results */}
       <div className="container space-y-3">
-        {filtered.map((trip, i) => (
-          <TripCard key={trip.id} trip={trip} index={i} />
-        ))}
+        {isLoading ? (
+          <div className="py-12 text-center text-sm text-muted-foreground">Chargement...</div>
+        ) : sorted.length === 0 ? (
+          <div className="py-12 text-center text-sm text-muted-foreground">Aucun trajet trouvé</div>
+        ) : (
+          sorted.map((trip, i) => (
+            <TripCard key={trip.id} trip={trip} index={i} />
+          ))
+        )}
       </div>
     </div>
   );
