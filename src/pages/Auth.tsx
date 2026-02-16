@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
+import logo from '@/assets/logo.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -45,9 +46,7 @@ const Auth = () => {
         className="container max-w-sm"
       >
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-mali">
-            <Shield className="h-7 w-7 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="Blasira" className="mx-auto mb-3 h-20 w-20 object-contain" />
           <h1 className="text-xl font-bold">
             {mode === 'login' ? 'Connexion' : 'Inscription'}
           </h1>
