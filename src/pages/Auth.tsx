@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User } from 'lucide-react';
+import { Phone, Lock, User } from 'lucide-react';
 import logo from '@/assets/logo.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,7 @@ const Auth = () => {
     setLoading(true);
 
     if (mode === 'signup') {
-      const { error } = await signUp(email, password, name);
+      const { error } = await signUp(phone, password, name);
       if (error) {
         toast.error(error.message);
       } else {
@@ -28,9 +28,9 @@ const Auth = () => {
         navigate('/');
       }
     } else {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(phone, password);
       if (error) {
-        toast.error('Email ou mot de passe incorrect');
+        toast.error('Numéro ou mot de passe incorrect');
       } else {
         navigate('/');
       }
@@ -73,12 +73,12 @@ const Auth = () => {
           )}
 
           <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
-            <Mail className="h-4 w-4 text-muted-foreground" />
+            <Phone className="h-4 w-4 text-muted-foreground" />
             <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="tel"
+              placeholder="Numéro de téléphone (ex: 76123456)"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               required
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
