@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Car, Bike, ArrowLeft, Check } from 'lucide-react';
-import { locations, universities } from '@/lib/api';
+import { quartiers, universities } from '@/lib/api';
 import { vehicleModels, calculateBasePrice, calculateTotalPrice, getDriverBreakdown } from '@/lib/pricing';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -38,7 +38,7 @@ const PublishTrip = () => {
   const driverBreakdown = form.price > 0 ? getDriverBreakdown(form.price) : null;
 
   const canNext = () => {
-    if (step === 0) return form.university && form.departure && form.destination && form.departure !== form.destination;
+    if (step === 0) return form.departure && form.destination;
     if (step === 1) return form.date && form.time;
     if (step === 2) return form.type && form.vehicle_info;
     if (step === 3) return form.price >= 100 && form.price <= 2000;
@@ -81,25 +81,34 @@ const PublishTrip = () => {
         return (
           <div className="space-y-4">
             <h2 className="text-lg font-bold">📍 Itinéraire</h2>
-            {/* University selection */}
+            {/* Departure - Quartier */}
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">Université / Établissement</label>
-              <div className="grid grid-cols-2 gap-2">
-                {universities.map((uni) => (
-                  <button
-                    key={uni}
-                    onClick={() => setForm({ ...form, university: uni })}
-                    className={`rounded-xl border-2 px-3 py-2.5 text-xs font-medium transition-colors ${
-                      form.university === uni ? 'border-primary bg-primary/5 text-primary' : 'border-border hover:bg-muted'
-                    }`}
-                  >
-                    🎓 {uni}
-                  </button>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Quartier de départ</label>
+              <select
+                value={form.departure}
+                onChange={(e) => setForm({ ...form, departure: e.target.value })}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
+              >
+                <option value="">Sélectionner un quartier</option>
+                {quartiers.map((q) => (
+                  <option key={q} value={q}>{q}</option>
                 ))}
-              </div>
+              </select>
             </div>
-            <LocationInput label="Départ" value={form.departure} onChange={(v) => setForm({ ...form, departure: v })} />
-            <LocationInput label="Arrivée" value={form.destination} onChange={(v) => setForm({ ...form, destination: v })} />
+            {/* Destination - Université */}
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Université / Établissement d'arrivée</label>
+              <select
+                value={form.destination}
+                onChange={(e) => setForm({ ...form, destination: e.target.value, university: e.target.value })}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm"
+              >
+                <option value="">Sélectionner une université</option>
+                {universities.map((uni) => (
+                  <option key={uni} value={uni}>🎓 {uni}</option>
+                ))}
+              </select>
+            </div>
             {distance > 0 && (
               <div className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">📏 ~{distance} km • ⏱️ ~{Math.round(distance * 2.5)} min estimé</div>
             )}
@@ -291,26 +300,6 @@ const PublishTrip = () => {
   );
 };
 
-const LocationInput = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => {
-  const [show, setShow] = useState(false);
-  const filtered = locations.filter((l) => l.toLowerCase().includes(value.toLowerCase()));
-  return (
-    <div className="relative">
-      <label className="mb-1 block text-xs font-medium text-muted-foreground">{label}</label>
-      <div className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2.5">
-        <MapPin className="h-4 w-4 shrink-0 text-primary" />
-        <input type="text" value={value} onChange={(e) => { onChange(e.target.value); setShow(e.target.value.length >= 1); }} onFocus={() => setShow(value.length >= 1)} onBlur={() => setTimeout(() => setShow(false), 200)} placeholder={`Ex: ${label === 'Départ' ? 'Badalabougou' : 'Université USSGB'}`} className="flex-1 bg-transparent text-sm outline-none" />
-      </div>
-      {show && filtered.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-36 overflow-y-auto rounded-lg border border-border bg-card shadow-lg">
-          {filtered.map((loc) => (
-            <button key={loc} className="block w-full px-3 py-2 text-left text-sm hover:bg-muted" onMouseDown={() => { onChange(loc); setShow(false); }}>{loc}</button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const Row = ({ label, value }: { label: string; value: string }) => (
   <div className="flex justify-between">
