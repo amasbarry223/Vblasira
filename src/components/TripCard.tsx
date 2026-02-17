@@ -75,8 +75,7 @@ const TripCard = ({ trip, index = 0 }: TripCardProps) => {
           </div>
 
           <div className="text-right">
-            <div className="text-lg font-bold text-primary">{trip.price_per_seat} F</div>
-            <div className="text-[10px] text-muted-foreground">par personne</div>
+            <div className="text-lg font-bold text-primary">{trip.price_per_seat} FCFA</div>
           </div>
         </div>
 
