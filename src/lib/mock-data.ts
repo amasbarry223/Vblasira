@@ -213,33 +213,5 @@ export const mockBookings: Booking[] = [
   },
 ];
 
-export const locations = [
-  'Badalabougou',
-  'ACI 2000',
-  'Magnambougou',
-  'Kalaban-Coro',
-  'Hippodrome',
-  'Lafiabougou',
-  'Centre-ville',
-  'Hamdallaye',
-  'Sotuba',
-  'Université USSGB',
-  'Université ULSHB',
-  'ENSup',
-  'IPR/IFRA',
-  'Lycée Prosper Camara',
-  'Lycée Technique',
-  'Lycée Ba Aminata Diallo',
-];
-
-export const universities = [
-  'USSGB',
-  'ULSHB',
-  'ENSup',
-  'IPR/IFRA',
-  'USJPB',
-  'USTTB',
-  'Lycée Prosper Camara',
-  'Lycée Technique',
-  'Lycée Ba Aminata Diallo',
-];
+// Locations and universities are now in src/lib/api.ts
+export { quartiers, universities } from '@/lib/api';

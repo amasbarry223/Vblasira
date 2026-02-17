@@ -13,16 +13,35 @@ export interface BookingWithTrip extends DbBooking {
   trip: TripWithDriver;
 }
 
-export const locations = [
-  'Badalabougou', 'ACI 2000', 'Magnambougou', 'Kalaban-Coro',
-  'Hippodrome', 'Lafiabougou', 'Centre-ville', 'Hamdallaye', 'Sotuba',
-  'Université USSGB', 'Université ULSHB', 'ENSup', 'IPR/IFRA',
-  'Lycée Prosper Camara', 'Lycée Technique', 'Lycée Ba Aminata Diallo',
+export const quartiers = [
+  'ACI 2000', 'Badalabougou', 'Badialan', 'Baco-Djicoroni', 'Banconi',
+  'Bolibana', 'Centre-ville', 'Daoudabougou', 'Djélibougou', 'Dravéla',
+  'Faladiè', 'Garantiguibougou', 'Hamdallaye', 'Hippodrome',
+  'Kalaban-Coro', 'Kalabancoro', 'Korofina', 'Lafiabougou',
+  'Magnambougou', 'Missabougou', 'Missira', 'Moribabougou',
+  'Niamakoro', 'Niarela', 'N\'Tomikorobougou', 'Ouolofobougou',
+  'Point-G', 'Quinzambougou', 'Sabalibougou', 'Samé', 'Sébenikoro',
+  'Sikoroni', 'Sogoniko', 'Sotuba', 'Titibougou', 'Torokorobougou',
+  'Yirimadio',
 ];
 
 export const universities = [
-  'USSGB', 'ULSHB', 'ENSup', 'IPR/IFRA', 'USJPB', 'USTTB',
-  'Lycée Prosper Camara', 'Lycée Technique', 'Lycée Ba Aminata Diallo',
+  'Université des Sciences Sociales et de Gestion de Bamako (USSGB)',
+  'Université des Lettres et des Sciences Humaines de Bamako (ULSHB)',
+  'Université des Sciences, des Techniques et des Technologies de Bamako (USTTB)',
+  'Université des Sciences Juridiques et Politiques de Bamako (USJPB)',
+  'École Normale Supérieure (ENSup)',
+  'Institut Polytechnique Rural / Institut de Formation et de Recherche Appliquée (IPR/IFRA)',
+  'École Nationale d\'Ingénieurs Abderhamane Baba Touré (ENI-ABT)',
+  'Institut Universitaire de Gestion (IUG)',
+  'Faculté de Médecine et d\'Odontostomatologie (FMOS)',
+  'Faculté de Pharmacie (FAPH)',
+  'Institut des Sciences Appliquées (ISA)',
+  'Institut Supérieur de Formation et de Recherche Appliquée (ISFRA)',
+  'Lycée Prosper Camara',
+  'Lycée Technique de Bamako',
+  'Lycée Ba Aminata Diallo',
+  'Lycée Askia Mohamed',
 ];
 
 // Fetch published trips with driver profile

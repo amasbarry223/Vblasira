@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MapPin, Calendar, Car, Bike, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { locations } from '@/lib/api';
+import { quartiers, universities } from '@/lib/api';
 import { motion } from 'framer-motion';
 
 interface SearchFormProps {
@@ -17,8 +17,8 @@ const SearchForm = ({ compact = false }: SearchFormProps) => {
   const [showDepartureSuggestions, setShowDepartureSuggestions] = useState(false);
   const [showDestSuggestions, setShowDestSuggestions] = useState(false);
 
-  const filteredDepartures = locations.filter((l) => l.toLowerCase().includes(departure.toLowerCase()));
-  const filteredDests = locations.filter((l) => l.toLowerCase().includes(destination.toLowerCase()));
+  const filteredDepartures = quartiers.filter((l) => l.toLowerCase().includes(departure.toLowerCase()));
+  const filteredDests = universities.filter((l) => l.toLowerCase().includes(destination.toLowerCase()));
 
   const handleSearch = () => {
     navigate(`/search?from=${encodeURIComponent(departure)}&to=${encodeURIComponent(destination)}&type=${vehicleType}&date=${date}`);
