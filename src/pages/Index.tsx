@@ -1,11 +1,30 @@
 import { motion } from 'framer-motion';
-import { Shield, Users, Bike, ArrowRight, Play, Star, CheckCircle, MapPin, Clock, UserCheck } from 'lucide-react';
+import { Shield, Users, Bike, ArrowRight, Play, Star, CheckCircle, MapPin, Clock, UserCheck, Car } from 'lucide-react';
 import SearchForm from '@/components/SearchForm';
 import TripCard from '@/components/TripCard';
 import heroImage from '@/assets/hero-blasira.jpg';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTrips } from '@/lib/api';
+import { popularRoutes } from '@/lib/pricing';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+
+// Location images
+import imgBadalabougou from '@/assets/locations/badalabougou.jpg';
+import imgUssgb from '@/assets/locations/universite-ussgb.jpg';
+import imgAci from '@/assets/locations/aci-2000.jpg';
+import imgKalaban from '@/assets/locations/kalaban-coro.jpg';
+import imgHippodrome from '@/assets/locations/hippodrome.jpg';
+import imgMagnambougou from '@/assets/locations/magnambougou.jpg';
+
+const locationImages: Record<string, string> = {
+  'badalabougou': imgBadalabougou,
+  'universite-ussgb': imgUssgb,
+  'aci-2000': imgAci,
+  'kalaban-coro': imgKalaban,
+  'hippodrome': imgHippodrome,
+  'magnambougou': imgMagnambougou,
+};
 
 const features = [
   { icon: Shield, title: 'Étudiants vérifiés', desc: "Carte d'étudiant obligatoire" },
@@ -57,7 +76,7 @@ const Index = () => {
   });
   const [showVideo, setShowVideo] = useState(false);
 
-  const popularTrips = trips.slice(0, 3);
+  const availableTrips = trips.slice(0, 6);
 
   return (
     <div className="pb-20">
@@ -104,6 +123,78 @@ const Index = () => {
           ))}
         </div>
       </section>
+
+      {/* 🔥 Trajets populaires — predefined routes */}
+      <section className="container mt-10">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold md:text-xl">🔥 Trajets populaires</h2>
+          <Link to="/search" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+            Voir tout <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          {popularRoutes.map((route, i) => (
+            <motion.div
+              key={route.id}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
+            >
+              <Link
+                to={`/search?from=${encodeURIComponent(route.from)}&to=${encodeURIComponent(route.to)}`}
+                className="group block overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:shadow-md"
+              >
+                <div className="relative h-28 md:h-36 overflow-hidden">
+                  <img
+                    src={locationImages[route.imageKey] || imgBadalabougou}
+                    alt={route.from}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <div className="text-xs font-bold text-card truncate">{route.from}</div>
+                    <div className="flex items-center gap-1 text-[10px] text-card/80">
+                      <ArrowRight className="h-2.5 w-2.5" /> {route.to}
+                    </div>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Clock className="h-3 w-3" /> {route.durationMin} min • {route.distanceKm} km
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-bold text-primary">{route.totalPrice} F</span>
+                    <span className="rounded-full bg-gradient-mali px-3 py-1 text-[10px] font-bold text-primary-foreground">
+                      Réserver
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Trajets disponibles — real-time from DB */}
+      {availableTrips.length > 0 && (
+        <section className="container mt-10">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold md:text-xl">🚗 Trajets disponibles</h2>
+            <Link to="/search" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+              Voir tout <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {availableTrips.map((trip, i) => (
+              <TripCard key={trip.id} trip={trip} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Comment ça marche */}
       <section className="container mt-10">
@@ -160,23 +251,6 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* Trajets populaires */}
-      {popularTrips.length > 0 && (
-        <section className="container mt-10">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold md:text-xl">🔥 Trajets populaires</h2>
-            <a href="/search" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
-              Voir tout <ArrowRight className="h-3 w-3" />
-            </a>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {popularTrips.map((trip, i) => (
-              <TripCard key={trip.id} trip={trip} index={i} />
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* Témoignages */}
       <section className="container mt-10">
         <h2 className="mb-5 text-center text-lg font-bold md:text-xl">💬 Ils nous font confiance</h2>
@@ -214,9 +288,9 @@ const Index = () => {
           <Shield className="mx-auto mb-2 h-8 w-8 text-primary-foreground" />
           <h3 className="mb-1 text-sm font-bold text-primary-foreground">Communauté étudiante sécurisée</h3>
           <p className="mb-3 text-xs text-primary-foreground/80">Chaque membre est vérifié avec sa carte d'étudiant. Voyagez en toute confiance !</p>
-          <a href="/auth" className="inline-block rounded-lg bg-card px-5 py-2 text-xs font-bold text-primary shadow transition-transform hover:scale-105">
+          <Link to="/auth" className="inline-block rounded-lg bg-card px-5 py-2 text-xs font-bold text-primary shadow transition-transform hover:scale-105">
             Rejoindre Blasira
-          </a>
+          </Link>
         </div>
       </section>
     </div>

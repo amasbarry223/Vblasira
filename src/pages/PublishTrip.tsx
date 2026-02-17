@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Car, Bike, ArrowLeft, Check } from 'lucide-react';
-import { locations } from '@/lib/api';
+import { locations, universities } from '@/lib/api';
+import { vehicleModels, calculateBasePrice, calculateTotalPrice, getDriverBreakdown } from '@/lib/pricing';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,6 +16,7 @@ const PublishTrip = () => {
   const [step, setStep] = useState(0);
   const [publishing, setPublishing] = useState(false);
   const [form, setForm] = useState({
+    university: '',
     departure: '',
     destination: '',
     date: '',
@@ -29,10 +31,14 @@ const PublishTrip = () => {
   });
 
   const distance = form.departure && form.destination ? Math.floor(Math.random() * 10 + 5) : 0;
-  const suggestedPrice = distance * 50;
+
+  // Auto-calculate price based on distance and vehicle type
+  const autoBasePrice = form.type && distance > 0 ? calculateBasePrice(distance, form.type) : 0;
+  const autoTotalPrice = autoBasePrice > 0 ? calculateTotalPrice(autoBasePrice) : 0;
+  const driverBreakdown = form.price > 0 ? getDriverBreakdown(form.price) : null;
 
   const canNext = () => {
-    if (step === 0) return form.departure && form.destination && form.departure !== form.destination;
+    if (step === 0) return form.university && form.departure && form.destination && form.departure !== form.destination;
     if (step === 1) return form.date && form.time;
     if (step === 2) return form.type && form.vehicle_info;
     if (step === 3) return form.price >= 100 && form.price <= 2000;
@@ -75,6 +81,23 @@ const PublishTrip = () => {
         return (
           <div className="space-y-4">
             <h2 className="text-lg font-bold">📍 Itinéraire</h2>
+            {/* University selection */}
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Université / Établissement</label>
+              <div className="grid grid-cols-2 gap-2">
+                {universities.map((uni) => (
+                  <button
+                    key={uni}
+                    onClick={() => setForm({ ...form, university: uni })}
+                    className={`rounded-xl border-2 px-3 py-2.5 text-xs font-medium transition-colors ${
+                      form.university === uni ? 'border-primary bg-primary/5 text-primary' : 'border-border hover:bg-muted'
+                    }`}
+                  >
+                    🎓 {uni}
+                  </button>
+                ))}
+              </div>
+            </div>
             <LocationInput label="Départ" value={form.departure} onChange={(v) => setForm({ ...form, departure: v })} />
             <LocationInput label="Arrivée" value={form.destination} onChange={(v) => setForm({ ...form, destination: v })} />
             {distance > 0 && (
@@ -118,16 +141,35 @@ const PublishTrip = () => {
                 { value: 'voiture' as const, label: 'Voiture', icon: Car },
                 { value: 'moto' as const, label: 'Moto', icon: Bike },
               ].map(({ value, label, icon: Icon }) => (
-                <button key={value} onClick={() => setForm({ ...form, type: value, seats: value === 'moto' ? 1 : 3 })} className={`flex flex-1 flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${form.type === value ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                <button key={value} onClick={() => setForm({ ...form, type: value, seats: value === 'moto' ? 1 : 3, vehicle_info: '' })} className={`flex flex-1 flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${form.type === value ? 'border-primary bg-primary/5' : 'border-border'}`}>
                   <Icon className={`h-8 w-8 ${form.type === value ? 'text-primary' : 'text-muted-foreground'}`} />
                   <span className="text-sm font-medium">{label}</span>
                 </button>
               ))}
             </div>
-            <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">Marque / Modèle</label>
-              <input type="text" placeholder={form.type === 'moto' ? 'Ex: Honda 125cc' : 'Ex: Toyota Corolla'} value={form.vehicle_info} onChange={(e) => setForm({ ...form, vehicle_info: e.target.value })} className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm" />
-            </div>
+
+            {/* Predefined vehicle models */}
+            {form.type && (
+              <div>
+                <label className="mb-2 block text-xs font-medium text-muted-foreground">Modèle du véhicule</label>
+                <div className="grid gap-2">
+                  {vehicleModels[form.type].map((model) => (
+                    <button
+                      key={model.value}
+                      onClick={() => setForm({ ...form, vehicle_info: model.value })}
+                      className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-colors ${
+                        form.vehicle_info === model.value
+                          ? 'border-primary bg-primary/5 text-primary'
+                          : 'border-border hover:bg-muted'
+                      }`}
+                    >
+                      {form.type === 'moto' ? '🏍️' : '🚗'} {model.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">Places disponibles</label>
               <div className="flex gap-2">
@@ -150,19 +192,42 @@ const PublishTrip = () => {
         return (
           <div className="space-y-4">
             <h2 className="text-lg font-bold">💰 Prix par place</h2>
+            {autoTotalPrice > 0 && (
+              <button
+                onClick={() => setForm({ ...form, price: autoTotalPrice })}
+                className="w-full rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 py-3 text-center"
+              >
+                <div className="text-xs text-muted-foreground">Prix calculé automatiquement</div>
+                <div className="text-xl font-bold text-primary">{autoTotalPrice} FCFA</div>
+                <div className="text-[10px] text-muted-foreground">Cliquez pour appliquer</div>
+              </button>
+            )}
             <div>
               <input type="number" min={100} max={2000} step={50} value={form.price || ''} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} placeholder="Prix en FCFA" className="w-full rounded-xl border border-border bg-background px-3 py-3 text-center text-2xl font-bold" />
               <div className="mt-2 text-center text-xs text-muted-foreground">Min: 100 FCFA — Max: 2 000 FCFA</div>
             </div>
-            {suggestedPrice > 0 && (
-              <button onClick={() => setForm({ ...form, price: suggestedPrice })} className="w-full rounded-lg bg-secondary/20 py-2 text-xs font-medium text-secondary-foreground">
-                💡 Prix suggéré: {suggestedPrice} FCFA ({distance} km × 50 FCFA)
-              </button>
-            )}
-            {form.price > 0 && form.seats > 0 && (
-              <div className="rounded-lg bg-primary/5 p-3 text-center text-sm">
-                Gains estimés: <span className="font-bold text-primary">{form.price * form.seats} FCFA</span>
-                <div className="text-[11px] text-muted-foreground">si {form.seats} places réservées</div>
+
+            {/* Driver-only breakdown */}
+            {driverBreakdown && (
+              <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+                <div className="text-xs font-bold text-muted-foreground uppercase tracking-wide">💼 Votre détail conducteur</div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Prix affiché au passager</span>
+                  <span className="font-semibold">{driverBreakdown.totalPrice} FCFA</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Commission Blasira (15%)</span>
+                  <span className="font-semibold text-mali-red">-{driverBreakdown.commission} FCFA</span>
+                </div>
+                <div className="border-t border-border pt-2 flex justify-between text-sm">
+                  <span className="font-bold">Vous recevez</span>
+                  <span className="font-bold text-primary">{driverBreakdown.driverNet} FCFA</span>
+                </div>
+                {form.seats > 1 && (
+                  <div className="text-[11px] text-center text-muted-foreground">
+                    Gains max: <span className="font-semibold text-primary">{driverBreakdown.driverNet * form.seats} FCFA</span> ({form.seats} places)
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -172,6 +237,7 @@ const PublishTrip = () => {
           <div className="space-y-3">
             <h2 className="text-lg font-bold">📋 Récapitulatif</h2>
             <div className="space-y-2 rounded-xl border border-border bg-card p-4 text-sm">
+              <Row label="Établissement" value={`🎓 ${form.university}`} />
               <Row label="Trajet" value={`${form.departure} → ${form.destination}`} />
               <Row label="Date" value={`${form.date} à ${form.time}`} />
               {form.recurrent && <Row label="Récurrence" value={form.days.join(', ')} />}
@@ -180,6 +246,12 @@ const PublishTrip = () => {
               <Row label="Prix/place" value={`${form.price} FCFA`} />
               {form.type === 'moto' && <Row label="Casque" value={form.helmet ? '✅ Fourni' : '❌ Non'} />}
             </div>
+            {driverBreakdown && (
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-center">
+                <div className="text-xs text-muted-foreground">Vous recevez par place</div>
+                <div className="text-lg font-bold text-primary">{driverBreakdown.driverNet} FCFA</div>
+              </div>
+            )}
           </div>
         );
     }
