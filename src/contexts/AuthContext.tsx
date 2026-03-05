@@ -1,8 +1,10 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { User, Session } from '@supabase/supabase-js';
+import { registerProfile } from '@/lib/api';
+import type { User as MockUserProfile } from '@/lib/mock-data';
 
-interface Profile {
+const STORAGE_KEY = 'blasira-mock-auth';
+
+export interface Profile {
   id: string;
   name: string;
   phone: string;
@@ -14,9 +16,14 @@ interface Profile {
   total_trips: number;
 }
 
+export interface MockUser {
+  id: string;
+  email?: string;
+}
+
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: MockUser | null;
+  session: { user: MockUser } | null;
   profile: Profile | null;
   loading: boolean;
   signUp: (phone: string, password: string, name: string) => Promise<{ error: Error | null }>;
@@ -24,11 +31,6 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
-
-const phoneToEmail = (phone: string) => {
-  const cleaned = phone.replace(/\D/g, '');
-  return `${cleaned}@blasira.app`;
-};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -38,68 +40,93 @@ export const useAuth = () => {
   return ctx;
 };
 
+function buildProfile(id: string, phone: string, name: string, isSignUp: boolean): Profile {
+  const cleanedPhone = phone.replace(/\D/g, '').trim();
+  const displayPhone = cleanedPhone ? `+223 ${cleanedPhone.slice(0, 2)} ${cleanedPhone.slice(2, 5)} ${cleanedPhone.slice(5)}` : '+223';
+  return {
+    id,
+    name: name || 'Utilisateur',
+    phone: displayPhone,
+    avatar_url: null,
+    role: 'student',
+    university: null,
+    verification_status: 'pending',
+    rating: 0,
+    total_trips: 0,
+  };
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<MockUser | null>(null);
+  const [session, setSession] = useState<{ user: MockUser } | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setProfile(data as Profile | null);
-  };
-
   const refreshProfile = async () => {
-    if (user) await fetchProfile(user.id);
+    if (user && profile) {
+      setProfile({ ...profile });
+    }
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
-        } else {
-          setProfile(null);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw) as { user: MockUser; profile: Profile };
+        if (data.user?.id && data.profile) {
+          setUser(data.user);
+          setSession({ user: data.user });
+          setProfile(data.profile);
+          registerProfile(data.user.id, data.profile as unknown as MockUserProfile);
         }
-        setLoading(false);
       }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    } catch {
+      // ignore invalid stored auth
+    }
+    setLoading(false);
   }, []);
 
-  const signUp = async (phone: string, password: string, name: string) => {
-    const email = phoneToEmail(phone);
-    const cleanedPhone = phone.replace(/\D/g, '');
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { name, phone: cleanedPhone } },
-    });
-    return { error: error as Error | null };
+  const persist = (u: MockUser | null, p: Profile | null) => {
+    if (u && p) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: u, profile: p }));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   };
 
-  const signIn = async (phone: string, password: string) => {
-    const email = phoneToEmail(phone);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+  const signUp = async (phone: string, _password: string, name: string) => {
+    await new Promise((r) => setTimeout(r, 300));
+    const id = `mock-${Date.now()}`;
+    const email = `${phone.replace(/\D/g, '')}@blasira.app`;
+    const mockUser: MockUser = { id, email };
+    const newProfile = buildProfile(id, phone, name, true);
+    setUser(mockUser);
+    setSession({ user: mockUser });
+    setProfile(newProfile);
+    registerProfile(id, newProfile as unknown as MockUserProfile);
+    persist(mockUser, newProfile);
+    return { error: null };
+  };
+
+  const signIn = async (phone: string, _password: string) => {
+    await new Promise((r) => setTimeout(r, 300));
+    const id = `mock-${Date.now()}`;
+    const email = `${phone.replace(/\D/g, '')}@blasira.app`;
+    const mockUser: MockUser = { id, email };
+    const newProfile = buildProfile(id, phone, 'Utilisateur', false);
+    setUser(mockUser);
+    setSession({ user: mockUser });
+    setProfile(newProfile);
+    registerProfile(id, newProfile as unknown as MockUserProfile);
+    persist(mockUser, newProfile);
+    return { error: null };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
+    setProfile(null);
+    persist(null, null);
   };
 
   return (
